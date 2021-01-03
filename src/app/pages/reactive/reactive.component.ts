@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-reactive',
@@ -9,14 +9,19 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class ReactiveComponent implements OnInit {
 
   forma: FormGroup;
-
+  
   constructor(private fb: FormBuilder) {
 
     this.crearFormulario();
+    this.cargarData();
 
    }
 
   ngOnInit(): void {
+  }
+
+  get pasatiempos (){
+    return this.forma.get('pasatiempos') as FormArray;
   }
 
   get nombreNoValido() {
@@ -29,6 +34,13 @@ export class ReactiveComponent implements OnInit {
     return this.forma.get('correo').invalid && this.forma.get('correo').touched
   }
 
+  get distritoNoValido() {
+    return this.forma.get('direccion.distrito').invalid && this.forma.get('direccion.distrito').touched
+  }
+  get ciudadNoValido() {
+    return this.forma.get('direccion.ciudad').invalid && this.forma.get('direccion.ciudad').touched
+  }
+
   crearFormulario(){
     this.forma = this.fb.group({
       nombre   : ['', [Validators.required, Validators.minLength(5)]],
@@ -37,9 +49,34 @@ export class ReactiveComponent implements OnInit {
       direccion: this.fb.group({
         distrito: ['', Validators.required],
         ciudad  : ['', Validators.required]
-      })
+      }),
+      pasatiempos: this.fb.array([])
     });
   }
+
+  cargarData(){
+    this.forma.reset({
+      nombre: 'Sergio',
+      apellido: 'Ros',
+      correo: 'juan@juan.es',
+      direccion: {
+        distrito: 'Ontario',
+        ciudad: 'Ottawa'
+      }
+    });
+
+
+  }
+
+
+
+  agregarPasatiempo(){
+    this.pasatiempos.push(this.fb.control(''));
+  }
+  borrarPasatiempo(index){
+    this.pasatiempos.removeAt(index);
+  }
+
 
   guardar(){
     console.log(this.forma);
@@ -49,10 +86,19 @@ export class ReactiveComponent implements OnInit {
     if(this.forma.invalid){
       
       return Object.values(this.forma.controls).forEach((control)=>{
+
+        if(control instanceof FormGroup) {
+          Object.values(control.controls).forEach(control => control.markAsTouched());
+        }
+
         control.markAsTouched();
       })
       
     }
+
+    //Aquí postearíamos la info a la DB
+
+    this.forma.reset({})
   }
 
 }
