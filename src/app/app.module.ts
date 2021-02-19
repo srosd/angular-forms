@@ -13,8 +13,7 @@ import { ReactiveComponent } from './pages/reactive/reactive.component';
   declarations: [
     AppComponent,
     TemplateComponent,
-    ReactiveComponent
-  ],
+    ReactiveComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
